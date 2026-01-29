@@ -129,52 +129,50 @@
       gap: 6px;
     }
 
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      gap: 8px;
+    /* Summary Cards - Inline */
+    .summary-inline {
+      display: none;
+      gap: 6px;
+      margin-left: auto;
     }
 
-    .status-info {
+    .summary-inline.show {
       display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
     }
 
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.8rem;
-    }
-
-    .status-badge {
-      padding: 3px 8px;
-      border-radius: 12px;
+    .summary-badge {
+      padding: 4px 10px;
+      border-radius: 15px;
       font-size: 0.75rem;
       font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .badge-success {
-      background: #d4edda;
-      color: #155724;
+    .summary-badge .num {
+      font-weight: 700;
     }
 
-    .badge-info {
-      background: #d1ecf1;
-      color: #0c5460;
+    .summary-badge.total {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .summary-badge.match {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .summary-badge.pending {
+      background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+    }
+
+    .summary-badge.unmatch {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
     }
 
     .data-table-container {
       overflow-x: auto;
-      max-height: 500px;
-      overflow-y: auto;
     }
 
     .data-table {
@@ -266,41 +264,46 @@
       display: block;
     }
 
-    .summary-cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 10px;
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
 
-    .summary-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .pagination button {
+      padding: 5px 10px;
+      border: 1px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background: #667eea;
       color: white;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
     }
 
-    .summary-card.green {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    .summary-card.orange {
-      background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+    .pagination button.active {
+      background: #667eea;
+      color: white;
     }
 
-    .summary-card.red {
-      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
-    }
-
-    .summary-card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 2px;
-    }
-
-    .summary-card p {
-      font-size: 0.7rem;
-      opacity: 0.9;
+    .pagination .page-info {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0 10px;
     }
 
     @media (max-width: 768px) {
@@ -318,13 +321,11 @@
         flex-wrap: wrap;
       }
 
-      .status-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .summary-cards {
-        grid-template-columns: repeat(2, 1fr);
+      .summary-inline {
+        width: 100%;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-top: 8px;
       }
 
       .data-table {
@@ -346,17 +347,9 @@
         padding: 8px;
       }
 
-      .summary-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 5px;
-      }
-
-      .summary-card {
-        padding: 8px;
-      }
-
-      .summary-card h3 {
-        font-size: 1.1rem;
+      .summary-badge {
+        padding: 3px 8px;
+        font-size: 0.7rem;
       }
     }
   </style>
@@ -392,48 +385,19 @@
           <button class="btn btn-primary" id="searchBtn" onclick="searchData()">Search</button>
           <button class="btn btn-secondary" onclick="clearData()">Clear</button>
         </div>
+
+        <div class="summary-inline" id="summaryInline">
+          <span class="summary-badge total"><span class="num" id="totalItems">0</span> Total</span>
+          <span class="summary-badge match"><span class="num" id="matchItems">0</span> Match</span>
+          <span class="summary-badge pending"><span class="num" id="pendingItems">0</span> Pending</span>
+          <span class="summary-badge unmatch"><span class="num" id="unmatchItems">0</span> Unmatch</span>
+        </div>
       </div>
     </div>
 
     <div class="error-message" id="errorMessage"></div>
 
     <div class="card" id="resultCard" style="display: none;">
-      <div class="status-bar">
-        <div class="status-info">
-          <div class="status-item">
-            <span>Plant:</span>
-            <span class="status-badge badge-info" id="displayPlant">-</span>
-          </div>
-          <div class="status-item">
-            <span>Date:</span>
-            <span class="status-badge badge-info" id="displayDate">-</span>
-          </div>
-        </div>
-        <div class="status-item">
-          <span>Items:</span>
-          <span class="status-badge badge-success" id="displayCount">0</span>
-        </div>
-      </div>
-
-      <div class="summary-cards" id="summaryCards">
-        <div class="summary-card">
-          <h3 id="totalItems">0</h3>
-          <p>Total</p>
-        </div>
-        <div class="summary-card green">
-          <h3 id="matchItems">0</h3>
-          <p>Match</p>
-        </div>
-        <div class="summary-card orange">
-          <h3 id="pendingItems">0</h3>
-          <p>Pending</p>
-        </div>
-        <div class="summary-card red">
-          <h3 id="unmatchItems">0</h3>
-          <p>Unmatch</p>
-        </div>
-      </div>
-
       <div class="loading" id="loadingIndicator">
         <div class="spinner"></div>
         <p>Loading...</p>
@@ -463,6 +427,8 @@
         </table>
       </div>
 
+      <div class="pagination" id="pagination"></div>
+
       <div class="no-data" id="noData" style="display: none;">
         <p>No data found</p>
       </div>
@@ -476,6 +442,11 @@
       plant: '',
       countDate: ''
     };
+
+    // Pagination settings
+    const ROWS_PER_PAGE = 10;
+    let currentPage = 1;
+    let totalPages = 1;
 
     /**
      * Search data from AppSheet API
@@ -524,8 +495,11 @@
 
       if (result.success) {
         inventoryData = result.data || [];
+        currentPage = 1;
+        totalPages = Math.ceil(inventoryData.length / ROWS_PER_PAGE) || 1;
         updateDisplay();
         renderTable();
+        renderPagination();
       } else {
         showError('Error: ' + (result.error || 'Unknown error'));
         inventoryData = [];
@@ -546,10 +520,6 @@
      * Update display
      */
     function updateDisplay() {
-      document.getElementById('displayPlant').textContent = currentSearchParams.plant;
-      document.getElementById('displayDate').textContent = formatDateThai(currentSearchParams.countDate);
-      document.getElementById('displayCount').textContent = inventoryData.length;
-
       const total = inventoryData.length;
       let match = 0;
       let unmatch = 0;
@@ -570,10 +540,13 @@
       document.getElementById('matchItems').textContent = match;
       document.getElementById('unmatchItems').textContent = unmatch;
       document.getElementById('pendingItems').textContent = pending;
+
+      // Show summary inline
+      document.getElementById('summaryInline').classList.add('show');
     }
 
     /**
-     * Render table
+     * Render table with pagination
      */
     function renderTable() {
       const tableBody = document.getElementById('tableBody');
@@ -582,6 +555,7 @@
 
       if (inventoryData.length === 0) {
         tableContainer.style.display = 'none';
+        document.getElementById('pagination').style.display = 'none';
         noData.style.display = 'block';
         return;
       }
@@ -589,8 +563,14 @@
       tableContainer.style.display = 'block';
       noData.style.display = 'none';
 
+      // Calculate pagination
+      const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ROWS_PER_PAGE, inventoryData.length);
+      const pageData = inventoryData.slice(startIndex, endIndex);
+
       let html = '';
-      inventoryData.forEach((item, index) => {
+      pageData.forEach((item, index) => {
+        const globalIndex = startIndex + index + 1;
         const result1st = (item.result_st1_counts || '').toLowerCase();
         const result1stClass = result1st === 'match' ? 'match' : (result1st ? 'unmatch' : '');
 
@@ -602,7 +582,7 @@
 
         html += `
           <tr>
-            <td>${index + 1}</td>
+            <td>${globalIndex}</td>
             <td>${item.part_number || '-'}</td>
             <td>${item.part_name || '-'}</td>
             <td>${item.Location || '-'}</td>
@@ -623,11 +603,84 @@
     }
 
     /**
+     * Render pagination controls
+     */
+    function renderPagination() {
+      const paginationContainer = document.getElementById('pagination');
+
+      if (inventoryData.length === 0) {
+        paginationContainer.style.display = 'none';
+        return;
+      }
+
+      paginationContainer.style.display = 'flex';
+
+      let html = '';
+
+      // First & Prev buttons
+      html += `<button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+      html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lsaquo;</button>`;
+
+      // Page numbers
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      if (startPage > 1) {
+        html += `<button onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+          html += `<span class="page-info">...</span>`;
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          html += `<span class="page-info">...</span>`;
+        }
+        html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      // Next & Last buttons
+      html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&rsaquo;</button>`;
+      html += `<button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
+
+      // Page info
+      const startItem = (currentPage - 1) * ROWS_PER_PAGE + 1;
+      const endItem = Math.min(currentPage * ROWS_PER_PAGE, inventoryData.length);
+      html += `<span class="page-info">${startItem}-${endItem} of ${inventoryData.length}</span>`;
+
+      paginationContainer.innerHTML = html;
+    }
+
+    /**
+     * Go to specific page
+     */
+    function goToPage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderTable();
+      renderPagination();
+
+      // Scroll to top of table
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /**
      * Clear all data
      */
     function clearData() {
       inventoryData = [];
       currentSearchParams = { plant: '', countDate: '' };
+      currentPage = 1;
+      totalPages = 1;
 
       // Clear radio selection
       const plantRadios = document.querySelectorAll('input[name="plant"]');
@@ -636,6 +689,7 @@
       document.getElementById('countDate').value = '';
       document.getElementById('resultCard').style.display = 'none';
       document.getElementById('tableBody').innerHTML = '';
+      document.getElementById('summaryInline').classList.remove('show');
 
       hideError();
     }
@@ -666,15 +720,14 @@
     function showLoading(show) {
       const loading = document.getElementById('loadingIndicator');
       const tableContainer = document.getElementById('tableContainer');
-      const summaryCards = document.getElementById('summaryCards');
+      const pagination = document.getElementById('pagination');
 
       if (show) {
         loading.classList.add('show');
         tableContainer.style.display = 'none';
-        summaryCards.style.display = 'none';
+        pagination.style.display = 'none';
       } else {
         loading.classList.remove('show');
-        summaryCards.style.display = 'grid';
       }
     }
 
