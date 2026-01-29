@@ -7,7 +7,7 @@
 const APPSHEET_CONFIG = {
   appId: '01e6b78c-d614-4803-9045-aa7591ccff63',
   tableName: 'update_physical_counts',
-  apiKey: '' // ต้องใส่ API Key ของ AppSheet ที่นี่
+  apiKey: 'V2-Axvzl-ldpHG-ma1Zj-ly2nj-XMuB6-XhPye-hiNm4-QDw3J'
 };
 
 /**
@@ -23,10 +23,9 @@ function doGet() {
  * ค้นหาข้อมูลจาก AppSheet API
  * @param {string} plant - สถานที่นับ (เช่น 'SIAM')
  * @param {string} countDate - วันที่นับสต๊อก (รูปแบบ MM/DD/YYYY)
- * @param {string} apiKey - AppSheet API Key
  * @returns {Object} ผลลัพธ์จาก API
  */
-function searchInventoryData(plant, countDate, apiKey) {
+function searchInventoryData(plant, countDate) {
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_CONFIG.appId}/tables/${APPSHEET_CONFIG.tableName}/Action`;
 
@@ -43,7 +42,7 @@ function searchInventoryData(plant, countDate, apiKey) {
       method: 'POST',
       contentType: 'application/json',
       headers: {
-        'ApplicationAccessKey': apiKey
+        'ApplicationAccessKey': APPSHEET_CONFIG.apiKey
       },
       payload: JSON.stringify(payload),
       muteHttpExceptions: true
