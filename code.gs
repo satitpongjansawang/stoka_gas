@@ -104,3 +104,57 @@ function validateApiKey(apiKey) {
     message: 'API Key ถูกต้อง'
   };
 }
+
+/**
+ * บันทึกข้อมูลจำนวนนับไปยัง AppSheet API
+ * @param {Object} updateData - ข้อมูลที่ต้องการอัพเดท
+ * @returns {Object} ผลลัพธ์จาก API
+ */
+function saveCountData(updateData) {
+  try {
+    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_CONFIG.appId}/tables/${APPSHEET_CONFIG.tableName}/Action`;
+
+    const payload = {
+      "Action": "Edit",
+      "Properties": {
+        "Locale": "en-US"
+      },
+      "Rows": [updateData]
+    };
+
+    const options = {
+      method: 'POST',
+      contentType: 'application/json',
+      headers: {
+        'ApplicationAccessKey': APPSHEET_CONFIG.apiKey
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+
+    const response = UrlFetchApp.fetch(url, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+
+    if (responseCode === 200) {
+      const data = JSON.parse(responseText);
+      return {
+        success: true,
+        data: data,
+        message: 'บันทึกข้อมูลสำเร็จ'
+      };
+    } else {
+      return {
+        success: false,
+        error: `API Error: ${responseCode}`,
+        details: responseText
+      };
+    }
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}

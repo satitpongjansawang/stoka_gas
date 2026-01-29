@@ -89,6 +89,33 @@
       box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
     }
 
+    input[type="text"] {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.8rem;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="number"] {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
     .btn {
       padding: 6px 14px;
       border: none;
@@ -122,6 +149,15 @@
 
     .btn-secondary:hover {
       background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
     }
 
     .button-group {
@@ -173,6 +209,27 @@
       color: #ffffff !important;
     }
 
+    /* Filter Section */
+    .filter-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .filter-section input[type="text"] {
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .filter-info {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
     .data-table-container {
       overflow-x: auto;
     }
@@ -199,16 +256,22 @@
       border-bottom: 1px solid #e0e0e0;
     }
 
-    .data-table tr:hover {
-      background: #f5f5f5;
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .data-table tbody tr:hover {
+      background: #e3f2fd !important;
     }
 
     .data-table tr:nth-child(even) {
       background: #f9f9f9;
     }
 
-    .data-table tr:nth-child(even):hover {
-      background: #f0f0f0;
+    .data-table tr.highlighted {
+      background: #fff3cd !important;
+      border-left: 3px solid #ffc107;
     }
 
     .match {
@@ -308,6 +371,165 @@
       margin: 0 10px;
     }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-header h3 {
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .modal-body {
+      margin-bottom: 15px;
+    }
+
+    .item-info {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+    }
+
+    .item-info p {
+      margin-bottom: 5px;
+    }
+
+    .item-info strong {
+      color: #667eea;
+    }
+
+    .count-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .count-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .count-input-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .count-input-group .current-value {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+      padding: 8px 20px;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .toast.warning {
+      background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
     @media (max-width: 768px) {
       .search-box {
         flex-direction: column;
@@ -330,6 +552,15 @@
         margin-top: 8px;
       }
 
+      .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-section input[type="text"] {
+        max-width: 100%;
+      }
+
       .data-table {
         font-size: 0.7rem;
       }
@@ -337,6 +568,16 @@
       .data-table th,
       .data-table td {
         padding: 5px 6px;
+      }
+
+      .modal {
+        width: 95%;
+        padding: 15px;
+      }
+
+      .toast-container {
+        left: 10px;
+        right: 10px;
       }
     }
 
@@ -400,6 +641,12 @@
     <div class="error-message" id="errorMessage"></div>
 
     <div class="card" id="resultCard" style="display: none;">
+      <div class="filter-section">
+        <label for="itemlocatFilter">Scan/Search:</label>
+        <input type="text" id="itemlocatFilter" placeholder="Enter itemlocat_key..." oninput="filterByItemlocat()" autofocus>
+        <span class="filter-info" id="filterInfo"></span>
+      </div>
+
       <div class="loading" id="loadingIndicator">
         <div class="spinner"></div>
         <p>Loading...</p>
@@ -437,13 +684,57 @@
     </div>
   </div>
 
+  <!-- Modal for Count Entry -->
+  <div class="modal-overlay" id="countModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Record Count</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="item-info">
+          <p><strong>Part Number:</strong> <span id="modalPartNumber">-</span></p>
+          <p><strong>Part Name:</strong> <span id="modalPartName">-</span></p>
+          <p><strong>Location:</strong> <span id="modalLocation">-</span></p>
+          <p><strong>Suggest Total:</strong> <span id="modalSuggest">-</span></p>
+        </div>
+        <div class="count-inputs">
+          <div class="count-input-group">
+            <label for="countSt1">Count 1st (count_st1_patl)</label>
+            <span class="current-value">Current: <span id="currentSt1">-</span></span>
+            <input type="number" id="countSt1" placeholder="Enter count..." min="0">
+          </div>
+          <div class="count-input-group">
+            <label for="countNd2">Count 2nd (count_nd2_patl)</label>
+            <span class="current-value">Current: <span id="currentNd2">-</span></span>
+            <input type="number" id="countNd2" placeholder="Enter count..." min="0">
+          </div>
+          <div class="count-input-group">
+            <label for="countRd3">Count 3rd (count_rd3_patl)</label>
+            <span class="current-value">Current: <span id="currentRd3">-</span></span>
+            <input type="number" id="countRd3" placeholder="Enter count..." min="0">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-success" id="saveCountBtn" onclick="saveCount()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
     // Store data in RAM
     let inventoryData = [];
+    let filteredData = [];
     let currentSearchParams = {
       plant: '',
       countDate: ''
     };
+    let selectedItem = null;
 
     // Pagination settings
     const ROWS_PER_PAGE = 10;
@@ -457,7 +748,6 @@
       const plantRadio = document.querySelector('input[name="plant"]:checked');
       const countDateInput = document.getElementById('countDate').value;
 
-      // Validation
       if (!plantRadio) {
         showError('Please select Plant');
         return;
@@ -471,17 +761,14 @@
       const plant = plantRadio.value;
       const countDate = formatDateForAppSheet(countDateInput);
 
-      // Store search params
       currentSearchParams.plant = plant;
       currentSearchParams.countDate = countDateInput;
 
-      // Show loading
       hideError();
       showLoading(true);
       document.getElementById('resultCard').style.display = 'block';
       document.getElementById('searchBtn').disabled = true;
 
-      // Call API via Google Apps Script
       google.script.run
         .withSuccessHandler(handleSearchSuccess)
         .withFailureHandler(handleSearchError)
@@ -497,14 +784,19 @@
 
       if (result.success) {
         inventoryData = result.data || [];
+        filteredData = [...inventoryData];
         currentPage = 1;
-        totalPages = Math.ceil(inventoryData.length / ROWS_PER_PAGE) || 1;
+        totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
         updateDisplay();
         renderTable();
         renderPagination();
+        document.getElementById('itemlocatFilter').value = '';
+        document.getElementById('filterInfo').textContent = '';
+        document.getElementById('itemlocatFilter').focus();
       } else {
         showError('Error: ' + (result.error || 'Unknown error'));
         inventoryData = [];
+        filteredData = [];
         renderTable();
       }
     }
@@ -516,6 +808,29 @@
       showLoading(false);
       document.getElementById('searchBtn').disabled = false;
       showError('Connection error: ' + error.message);
+    }
+
+    /**
+     * Filter by itemlocat_key
+     */
+    function filterByItemlocat() {
+      const filterValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
+      const filterInfo = document.getElementById('filterInfo');
+
+      if (filterValue === '') {
+        filteredData = [...inventoryData];
+        filterInfo.textContent = '';
+      } else {
+        filteredData = inventoryData.filter(item =>
+          item.itemlocat_key && item.itemlocat_key.toLowerCase().includes(filterValue)
+        );
+        filterInfo.textContent = `Found: ${filteredData.length} items`;
+      }
+
+      currentPage = 1;
+      totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
+      renderTable();
+      renderPagination();
     }
 
     /**
@@ -543,7 +858,6 @@
       document.getElementById('unmatchItems').textContent = unmatch;
       document.getElementById('pendingItems').textContent = pending;
 
-      // Show summary inline
       document.getElementById('summaryInline').classList.add('show');
     }
 
@@ -555,7 +869,7 @@
       const noData = document.getElementById('noData');
       const tableContainer = document.getElementById('tableContainer');
 
-      if (inventoryData.length === 0) {
+      if (filteredData.length === 0) {
         tableContainer.style.display = 'none';
         document.getElementById('pagination').style.display = 'none';
         noData.style.display = 'block';
@@ -565,10 +879,9 @@
       tableContainer.style.display = 'block';
       noData.style.display = 'none';
 
-      // Calculate pagination
       const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
-      const endIndex = Math.min(startIndex + ROWS_PER_PAGE, inventoryData.length);
-      const pageData = inventoryData.slice(startIndex, endIndex);
+      const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
+      const pageData = filteredData.slice(startIndex, endIndex);
 
       let html = '';
       pageData.forEach((item, index) => {
@@ -582,8 +895,10 @@
         const result3rd = (item.result_rd3_counts || '').toLowerCase();
         const result3rdClass = result3rd === 'match' ? 'match' : (result3rd ? 'unmatch' : '');
 
+        const dataIndex = inventoryData.findIndex(d => d['Row ID'] === item['Row ID']);
+
         html += `
-          <tr>
+          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}">
             <td>${globalIndex}</td>
             <td>${item.part_number || '-'}</td>
             <td>${item.part_name || '-'}</td>
@@ -605,12 +920,137 @@
     }
 
     /**
+     * Open count modal
+     */
+    function openCountModal(index) {
+      selectedItem = inventoryData[index];
+      if (!selectedItem) return;
+
+      document.getElementById('modalPartNumber').textContent = selectedItem.part_number || '-';
+      document.getElementById('modalPartName').textContent = selectedItem.part_name || '-';
+      document.getElementById('modalLocation').textContent = selectedItem.Location || '-';
+      document.getElementById('modalSuggest').textContent = selectedItem.suggest_totals || '-';
+
+      document.getElementById('currentSt1').textContent = selectedItem.count_st1_patl || '-';
+      document.getElementById('currentNd2').textContent = selectedItem.count_nd2_patl || '-';
+      document.getElementById('currentRd3').textContent = selectedItem.count_rd3_patl || '-';
+
+      document.getElementById('countSt1').value = '';
+      document.getElementById('countNd2').value = '';
+      document.getElementById('countRd3').value = '';
+
+      document.getElementById('countModal').classList.add('show');
+      document.getElementById('countSt1').focus();
+    }
+
+    /**
+     * Close modal
+     */
+    function closeModal() {
+      document.getElementById('countModal').classList.remove('show');
+      selectedItem = null;
+      document.getElementById('itemlocatFilter').value = '';
+      document.getElementById('itemlocatFilter').focus();
+      filterByItemlocat();
+    }
+
+    /**
+     * Save count data
+     */
+    function saveCount() {
+      if (!selectedItem) return;
+
+      const countSt1 = document.getElementById('countSt1').value;
+      const countNd2 = document.getElementById('countNd2').value;
+      const countRd3 = document.getElementById('countRd3').value;
+
+      if (countSt1 === '' && countNd2 === '' && countRd3 === '') {
+        showToast('Please enter at least one count value', 'warning');
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveCountBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      const updateData = {
+        'Row ID': selectedItem['Row ID']
+      };
+
+      if (countSt1 !== '') updateData.count_st1_patl = countSt1;
+      if (countNd2 !== '') updateData.count_nd2_patl = countNd2;
+      if (countRd3 !== '') updateData.count_rd3_patl = countRd3;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+
+          if (result.success) {
+            const suggest = parseFloat(selectedItem.suggest_totals) || 0;
+            let enteredValue = 0;
+            let countType = '';
+
+            if (countSt1 !== '') {
+              enteredValue = parseFloat(countSt1);
+              countType = '1st';
+            } else if (countNd2 !== '') {
+              enteredValue = parseFloat(countNd2);
+              countType = '2nd';
+            } else if (countRd3 !== '') {
+              enteredValue = parseFloat(countRd3);
+              countType = '3rd';
+            }
+
+            if (enteredValue === suggest) {
+              showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
+            } else {
+              showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
+            }
+
+            // Update local data
+            const idx = inventoryData.findIndex(d => d['Row ID'] === selectedItem['Row ID']);
+            if (idx !== -1) {
+              if (countSt1 !== '') inventoryData[idx].count_st1_patl = countSt1;
+              if (countNd2 !== '') inventoryData[idx].count_nd2_patl = countNd2;
+              if (countRd3 !== '') inventoryData[idx].count_rd3_patl = countRd3;
+            }
+
+            closeModal();
+          } else {
+            showToast('Error: ' + (result.error || 'Failed to save'), 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+          showToast('Connection error: ' + error.message, 'error');
+        })
+        .saveCountData(updateData);
+    }
+
+    /**
+     * Show toast notification
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    /**
      * Render pagination controls
      */
     function renderPagination() {
       const paginationContainer = document.getElementById('pagination');
 
-      if (inventoryData.length === 0) {
+      if (filteredData.length === 0) {
         paginationContainer.style.display = 'none';
         return;
       }
@@ -619,11 +1059,9 @@
 
       let html = '';
 
-      // First & Prev buttons
       html += `<button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
       html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lsaquo;</button>`;
 
-      // Page numbers
       const maxVisiblePages = 5;
       let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -650,14 +1088,12 @@
         html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
       }
 
-      // Next & Last buttons
       html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&rsaquo;</button>`;
       html += `<button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
 
-      // Page info
       const startItem = (currentPage - 1) * ROWS_PER_PAGE + 1;
-      const endItem = Math.min(currentPage * ROWS_PER_PAGE, inventoryData.length);
-      html += `<span class="page-info">${startItem}-${endItem} of ${inventoryData.length}</span>`;
+      const endItem = Math.min(currentPage * ROWS_PER_PAGE, filteredData.length);
+      html += `<span class="page-info">${startItem}-${endItem} of ${filteredData.length}</span>`;
 
       paginationContainer.innerHTML = html;
     }
@@ -670,8 +1106,6 @@
       currentPage = page;
       renderTable();
       renderPagination();
-
-      // Scroll to top of table
       document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -680,11 +1114,11 @@
      */
     function clearData() {
       inventoryData = [];
+      filteredData = [];
       currentSearchParams = { plant: '', countDate: '' };
       currentPage = 1;
       totalPages = 1;
 
-      // Clear radio selection
       const plantRadios = document.querySelectorAll('input[name="plant"]');
       plantRadios.forEach(radio => radio.checked = false);
 
@@ -692,6 +1126,7 @@
       document.getElementById('resultCard').style.display = 'none';
       document.getElementById('tableBody').innerHTML = '';
       document.getElementById('summaryInline').classList.remove('show');
+      document.getElementById('itemlocatFilter').value = '';
 
       hideError();
     }
@@ -705,15 +1140,6 @@
       const day = String(date.getDate()).padStart(2, '0');
       const year = date.getFullYear();
       return `${month}/${day}/${year}`;
-    }
-
-    /**
-     * Format date to Thai format
-     */
-    function formatDateThai(dateStr) {
-      const date = new Date(dateStr);
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return date.toLocaleDateString('th-TH', options);
     }
 
     /**
@@ -754,22 +1180,6 @@
      */
     function getStoredData() {
       return inventoryData;
-    }
-
-    /**
-     * Get item by index
-     */
-    function getItemByIndex(index) {
-      return inventoryData[index] || null;
-    }
-
-    /**
-     * Find by part number
-     */
-    function findByPartNumber(partNumber) {
-      return inventoryData.filter(item =>
-        item.part_number && item.part_number.toLowerCase().includes(partNumber.toLowerCase())
-      );
     }
   </script>
 </body>
