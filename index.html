@@ -925,13 +925,20 @@
       let pending = 0;
 
       inventoryData.forEach(item => {
-        const result = (item.result_st1_counts || '').toLowerCase();
-        if (result === 'match') {
-          match++;
-        } else if (result === 'unmatch' || result === 'not match') {
-          unmatch++;
-        } else {
+        const diffSuggestTot = item.diff_suggest_tot;
+
+        // Check if diff_suggest_tot has a value
+        if (diffSuggestTot === '' || diffSuggestTot === null || diffSuggestTot === undefined) {
+          // No count recorded yet - Pending
           pending++;
+        } else {
+          // Has value - check if Match or Unmatch
+          const diffValue = parseFloat(diffSuggestTot) || 0;
+          if (diffValue === 0) {
+            match++;
+          } else {
+            unmatch++;
+          }
         }
       });
 
