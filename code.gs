@@ -107,7 +107,7 @@ function validateApiKey(apiKey) {
 
 /**
  * บันทึกข้อมูลจำนวนนับไปยัง AppSheet API
- * @param {Object} updateData - ข้อมูลที่ต้องการอัพเดท
+ * @param {Object} updateData - ข้อมูลที่ต้องการอัพเดท (ต้องมี Row ID เป็น key)
  * @returns {Object} ผลลัพธ์จาก API
  */
 function saveCountData(updateData) {
@@ -117,7 +117,8 @@ function saveCountData(updateData) {
     const payload = {
       "Action": "Edit",
       "Properties": {
-        "Locale": "en-US"
+        "Locale": "en-US",
+        "Timezone": "Asia/Bangkok"
       },
       "Rows": [updateData]
     };
