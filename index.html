@@ -1057,7 +1057,7 @@
     }
 
     /**
-     * Save count data
+     * Save count data (optimistic UI - show result immediately, save in background)
      */
     function saveCount() {
       if (!selectedItem) return;
@@ -1071,58 +1071,58 @@
         return;
       }
 
-      // Show loading spinner
-      document.getElementById('modalLoading').classList.add('show');
+      // Calculate Match/Unmatch immediately
+      const suggest = parseFloat(selectedItem.suggest_totals) || 0;
+      let enteredValue = 0;
+      let countType = '';
 
+      if (countSt1 !== '') {
+        enteredValue = parseFloat(countSt1);
+        countType = '1st';
+      } else if (countNd2 !== '') {
+        enteredValue = parseFloat(countNd2);
+        countType = '2nd';
+      } else if (countRd3 !== '') {
+        enteredValue = parseFloat(countRd3);
+        countType = '3rd';
+      }
+
+      // Show Toast immediately (before API call)
+      if (enteredValue === suggest) {
+        showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
+      } else {
+        showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
+      }
+
+      // Update local data immediately (optimistic update)
+      const rowId = selectedItem['Row ID'];
+      const idx = inventoryData.findIndex(d => d['Row ID'] === rowId);
+      if (idx !== -1) {
+        if (countSt1 !== '') inventoryData[idx].count_st1_patl = countSt1;
+        if (countNd2 !== '') inventoryData[idx].count_nd2_patl = countNd2;
+        if (countRd3 !== '') inventoryData[idx].count_rd3_patl = countRd3;
+      }
+
+      // Close modal immediately - user can continue working
+      closeModal();
+
+      // Prepare update data for background save
       const updateData = {
-        'Row ID': selectedItem['Row ID']
+        'Row ID': rowId
       };
 
       if (countSt1 !== '') updateData.count_st1_patl = countSt1;
       if (countNd2 !== '') updateData.count_nd2_patl = countNd2;
       if (countRd3 !== '') updateData.count_rd3_patl = countRd3;
 
+      // Save in background - only show error if fails
       google.script.run
         .withSuccessHandler(function(result) {
-          document.getElementById('modalLoading').classList.remove('show');
-
-          if (result.success) {
-            const suggest = parseFloat(selectedItem.suggest_totals) || 0;
-            let enteredValue = 0;
-            let countType = '';
-
-            if (countSt1 !== '') {
-              enteredValue = parseFloat(countSt1);
-              countType = '1st';
-            } else if (countNd2 !== '') {
-              enteredValue = parseFloat(countNd2);
-              countType = '2nd';
-            } else if (countRd3 !== '') {
-              enteredValue = parseFloat(countRd3);
-              countType = '3rd';
-            }
-
-            if (enteredValue === suggest) {
-              showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
-            } else {
-              showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
-            }
-
-            // Update local data
-            const idx = inventoryData.findIndex(d => d['Row ID'] === selectedItem['Row ID']);
-            if (idx !== -1) {
-              if (countSt1 !== '') inventoryData[idx].count_st1_patl = countSt1;
-              if (countNd2 !== '') inventoryData[idx].count_nd2_patl = countNd2;
-              if (countRd3 !== '') inventoryData[idx].count_rd3_patl = countRd3;
-            }
-
-            closeModal();
-          } else {
-            showToast('Error: ' + (result.error || 'Failed to save'), 'error');
+          if (!result.success) {
+            showToast('Save failed: ' + (result.error || 'Unknown error'), 'error');
           }
         })
         .withFailureHandler(function(error) {
-          document.getElementById('modalLoading').classList.remove('show');
           showToast('Connection error: ' + error.message, 'error');
         })
         .saveCountData(updateData);
