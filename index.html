@@ -394,10 +394,11 @@
       border-radius: 12px;
       padding: 20px;
       width: 90%;
-      max-width: 400px;
+      max-width: 500px;
       max-height: 90vh;
       overflow-y: auto;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      position: relative;
     }
 
     .modal-header {
@@ -435,21 +436,31 @@
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 15px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+    }
+
+    .item-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 15px;
     }
 
     .item-info p {
-      margin-bottom: 5px;
+      margin: 0;
     }
 
     .item-info strong {
       color: #667eea;
     }
 
+    .item-info .full-width {
+      grid-column: 1 / -1;
+    }
+
     .count-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
 
     .count-input-group {
@@ -459,14 +470,20 @@
     }
 
     .count-input-group label {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: #333;
     }
 
     .count-input-group .current-value {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #666;
+    }
+
+    .count-input-group input[type="number"] {
+      padding: 8px;
+      font-size: 1rem;
+      text-align: center;
     }
 
     .modal-footer {
@@ -477,6 +494,42 @@
 
     .modal-footer .btn {
       padding: 8px 20px;
+    }
+
+    /* Modal Loading Overlay */
+    .modal-loading {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .modal-loading.show {
+      display: flex;
+    }
+
+    .modal-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    .modal-loading p {
+      color: #667eea;
+      font-weight: 600;
+      font-size: 0.9rem;
     }
 
     /* Toast */
@@ -573,6 +626,24 @@
       .modal {
         width: 95%;
         padding: 15px;
+      }
+
+      .item-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .count-inputs {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .count-input-group label {
+        font-size: 0.7rem;
+      }
+
+      .count-input-group input[type="number"] {
+        padding: 6px;
+        font-size: 0.9rem;
       }
 
       .toast-container {
@@ -687,32 +758,43 @@
   <!-- Modal for Count Entry -->
   <div class="modal-overlay" id="countModal">
     <div class="modal">
+      <div class="modal-loading" id="modalLoading">
+        <div class="modal-spinner"></div>
+        <p>Saving...</p>
+      </div>
       <div class="modal-header">
         <h3>Record Count</h3>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div class="item-info">
-          <p><strong>Part Number:</strong> <span id="modalPartNumber">-</span></p>
-          <p><strong>Part Name:</strong> <span id="modalPartName">-</span></p>
-          <p><strong>Location:</strong> <span id="modalLocation">-</span></p>
-          <p><strong>Suggest Total:</strong> <span id="modalSuggest">-</span></p>
+          <div class="item-info-grid">
+            <p class="full-width"><strong>Part Number:</strong> <span id="modalPartNumber">-</span></p>
+            <p class="full-width"><strong>Part Name:</strong> <span id="modalPartName">-</span></p>
+            <p><strong>Location:</strong> <span id="modalLocation">-</span></p>
+            <p><strong>Warehouse:</strong> <span id="modalWh">-</span></p>
+            <p><strong>Product Type:</strong> <span id="modalPdType">-</span></p>
+            <p><strong>Biz Type:</strong> <span id="modalBzType">-</span></p>
+            <p><strong>Status:</strong> <span id="modalStatus">-</span></p>
+            <p><strong>BOQ:</strong> <span id="modalBoq">-</span></p>
+            <p><strong>UOM:</strong> <span id="modalUom">-</span></p>
+          </div>
         </div>
         <div class="count-inputs">
           <div class="count-input-group">
-            <label for="countSt1">Count 1st (count_st1_patl)</label>
+            <label for="countSt1">Count 1st</label>
             <span class="current-value">Current: <span id="currentSt1">-</span></span>
-            <input type="number" id="countSt1" placeholder="Enter count..." min="0">
+            <input type="number" id="countSt1" placeholder="0" min="0">
           </div>
           <div class="count-input-group">
-            <label for="countNd2">Count 2nd (count_nd2_patl)</label>
+            <label for="countNd2">Count 2nd</label>
             <span class="current-value">Current: <span id="currentNd2">-</span></span>
-            <input type="number" id="countNd2" placeholder="Enter count..." min="0">
+            <input type="number" id="countNd2" placeholder="0" min="0">
           </div>
           <div class="count-input-group">
-            <label for="countRd3">Count 3rd (count_rd3_patl)</label>
+            <label for="countRd3">Count 3rd</label>
             <span class="current-value">Current: <span id="currentRd3">-</span></span>
-            <input type="number" id="countRd3" placeholder="Enter count..." min="0">
+            <input type="number" id="countRd3" placeholder="0" min="0">
           </div>
         </div>
       </div>
@@ -929,7 +1011,12 @@
       document.getElementById('modalPartNumber').textContent = selectedItem.part_number || '-';
       document.getElementById('modalPartName').textContent = selectedItem.part_name || '-';
       document.getElementById('modalLocation').textContent = selectedItem.Location || '-';
-      document.getElementById('modalSuggest').textContent = selectedItem.suggest_totals || '-';
+      document.getElementById('modalWh').textContent = selectedItem.wh || '-';
+      document.getElementById('modalPdType').textContent = selectedItem.pd_type || '-';
+      document.getElementById('modalBzType').textContent = selectedItem.bz_type || '-';
+      document.getElementById('modalStatus').textContent = selectedItem.Status || '-';
+      document.getElementById('modalBoq').textContent = selectedItem.boq || '-';
+      document.getElementById('modalUom').textContent = selectedItem.uom || '-';
 
       document.getElementById('currentSt1').textContent = selectedItem.count_st1_patl || '-';
       document.getElementById('currentNd2').textContent = selectedItem.count_nd2_patl || '-';
@@ -939,6 +1026,7 @@
       document.getElementById('countNd2').value = '';
       document.getElementById('countRd3').value = '';
 
+      document.getElementById('modalLoading').classList.remove('show');
       document.getElementById('countModal').classList.add('show');
       document.getElementById('countSt1').focus();
     }
@@ -969,9 +1057,8 @@
         return;
       }
 
-      const saveBtn = document.getElementById('saveCountBtn');
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      // Show loading spinner
+      document.getElementById('modalLoading').classList.add('show');
 
       const updateData = {
         'Row ID': selectedItem['Row ID']
@@ -983,8 +1070,7 @@
 
       google.script.run
         .withSuccessHandler(function(result) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save';
+          document.getElementById('modalLoading').classList.remove('show');
 
           if (result.success) {
             const suggest = parseFloat(selectedItem.suggest_totals) || 0;
@@ -1022,8 +1108,7 @@
           }
         })
         .withFailureHandler(function(error) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save';
+          document.getElementById('modalLoading').classList.remove('show');
           showToast('Connection error: ' + error.message, 'error');
         })
         .saveCountData(updateData);
