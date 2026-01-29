@@ -731,15 +731,15 @@
               <th>Part Number</th>
               <th>Part Name</th>
               <th>Location</th>
+              <th>Status</th>
               <th>UOM</th>
-              <th>Suggest</th>
               <th>Count 1st</th>
               <th>Result 1st</th>
               <th>Count 2nd</th>
               <th>Result 2nd</th>
               <th>Count 3rd</th>
               <th>Result 3rd</th>
-              <th>Status</th>
+              <th>Result Total</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -986,21 +986,28 @@
 
         const dataIndex = inventoryData.findIndex(d => d['Row ID'] === item['Row ID']);
 
+        const suggestTooltip = item.suggest_totals !== undefined && item.suggest_totals !== ''
+          ? `Suggest Total: ${item.suggest_totals}`
+          : 'Suggest Total: -';
+
+        const resultTotClass = (item.result_tot_counts || '').toLowerCase();
+        const resultTotDisplayClass = resultTotClass === 'match' ? 'match' : (resultTotClass ? 'unmatch' : '');
+
         html += `
-          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}">
-            <td>${globalIndex}</td>
+          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}" title="${suggestTooltip}">
+            <td>${item.item_order || '-'}</td>
             <td>${item.part_number || '-'}</td>
             <td>${item.part_name || '-'}</td>
             <td>${item.Location || '-'}</td>
+            <td>${item.Status || '-'}</td>
             <td>${item.uom || '-'}</td>
-            <td>${item.suggest_totals || '-'}</td>
             <td>${item.summary_st1 || '-'}</td>
             <td class="${result1stClass}">${item.result_st1_counts || '-'}</td>
             <td>${item.summary_nd2 || '-'}</td>
             <td class="${result2ndClass}">${item.result_nd2_counts || '-'}</td>
             <td>${item.summary_rd3 || '-'}</td>
             <td class="${result3rdClass}">${item.result_rd3_counts || '-'}</td>
-            <td>${item.Status || '-'}</td>
+            <td class="${resultTotDisplayClass}">${item.result_tot_counts || '-'}</td>
           </tr>
         `;
       });
