@@ -826,17 +826,17 @@
           <div class="count-input-group">
             <label for="countSt1">Count 1st</label>
             <span class="current-value">Current: <span id="currentSt1">-</span></span>
-            <input type="number" id="countSt1" placeholder="0" min="0">
+            <input type="number" id="countSt1" placeholder="0" min="0" onkeypress="handleEnterKey(event)">
           </div>
           <div class="count-input-group">
             <label for="countNd2">Count 2nd</label>
             <span class="current-value">Current: <span id="currentNd2">-</span></span>
-            <input type="number" id="countNd2" placeholder="0" min="0">
+            <input type="number" id="countNd2" placeholder="0" min="0" onkeypress="handleEnterKey(event)">
           </div>
           <div class="count-input-group">
             <label for="countRd3">Count 3rd</label>
             <span class="current-value">Current: <span id="currentRd3">-</span></span>
-            <input type="number" id="countRd3" placeholder="0" min="0">
+            <input type="number" id="countRd3" placeholder="0" min="0" onkeypress="handleEnterKey(event)">
           </div>
         </div>
       </div>
@@ -1166,6 +1166,16 @@
       document.getElementById('locationFilter').value = '';
       document.getElementById('itemlocatFilter').focus();
       applyFilters();
+    }
+
+    /**
+     * Handle Enter key press to save count
+     */
+    function handleEnterKey(event) {
+      if (event.key === 'Enter' || event.keyCode === 13) {
+        event.preventDefault();
+        saveCount();
+      }
     }
 
     /**
