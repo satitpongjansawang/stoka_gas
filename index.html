@@ -102,6 +102,40 @@
       box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
     }
 
+    input[type="email"] {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      width: 180px;
+    }
+
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="email"]:invalid {
+      border-color: #dc3545;
+    }
+
+    select {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      background: white;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
     input[type="number"] {
       padding: 8px 10px;
       border: 1px solid #ccc;
@@ -695,8 +729,13 @@
           <input type="date" id="countDate">
         </div>
 
+        <div class="form-group">
+          <label for="userEmail">Email:</label>
+          <input type="email" id="userEmail" placeholder="your@email.com" oninput="validateSearchForm()">
+        </div>
+
         <div class="button-group">
-          <button class="btn btn-primary" id="searchBtn" onclick="searchData()">Search</button>
+          <button class="btn btn-primary" id="searchBtn" onclick="searchData()" disabled>Search</button>
           <button class="btn btn-secondary" onclick="clearData()">Clear</button>
         </div>
 
@@ -714,7 +753,10 @@
     <div class="card" id="resultCard" style="display: none;">
       <div class="filter-section">
         <label for="itemlocatFilter">Scan/Search:</label>
-        <input type="text" id="itemlocatFilter" placeholder="Enter itemlocat_key..." oninput="filterByItemlocat()" autofocus>
+        <input type="text" id="itemlocatFilter" placeholder="Enter itemlocat_key..." oninput="applyFilters()" autofocus>
+        <select id="locationFilter" onchange="applyFilters()">
+          <option value="">All Locations</option>
+        </select>
         <span class="filter-info" id="filterInfo"></span>
       </div>
 
@@ -814,7 +856,8 @@
     let filteredData = [];
     let currentSearchParams = {
       plant: '',
-      countDate: ''
+      countDate: '',
+      userEmail: ''
     };
     let selectedItem = null;
 
@@ -824,11 +867,27 @@
     let totalPages = 1;
 
     /**
+     * Validate search form and enable/disable search button
+     */
+    function validateSearchForm() {
+      const emailInput = document.getElementById('userEmail');
+      const searchBtn = document.getElementById('searchBtn');
+      const email = emailInput.value.trim();
+
+      // Simple email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValidEmail = emailRegex.test(email);
+
+      searchBtn.disabled = !isValidEmail;
+    }
+
+    /**
      * Search data from AppSheet API
      */
     function searchData() {
       const plantRadio = document.querySelector('input[name="plant"]:checked');
       const countDateInput = document.getElementById('countDate').value;
+      const userEmailInput = document.getElementById('userEmail').value.trim();
 
       if (!plantRadio) {
         showError('Please select Plant');
@@ -840,11 +899,17 @@
         return;
       }
 
+      if (!userEmailInput) {
+        showError('Please enter Email');
+        return;
+      }
+
       const plant = plantRadio.value;
       const countDate = formatDateForAppSheet(countDateInput);
 
       currentSearchParams.plant = plant;
       currentSearchParams.countDate = countDateInput;
+      currentSearchParams.userEmail = userEmailInput;
 
       hideError();
       showLoading(true);
@@ -862,7 +927,7 @@
      */
     function handleSearchSuccess(result) {
       showLoading(false);
-      document.getElementById('searchBtn').disabled = false;
+      validateSearchForm();
 
       if (result.success) {
         inventoryData = result.data || [];
@@ -872,7 +937,9 @@
         updateDisplay();
         renderTable();
         renderPagination();
+        populateLocationDropdown();
         document.getElementById('itemlocatFilter').value = '';
+        document.getElementById('locationFilter').value = '';
         document.getElementById('filterInfo').textContent = '';
         document.getElementById('itemlocatFilter').focus();
       } else {
@@ -888,31 +955,75 @@
      */
     function handleSearchError(error) {
       showLoading(false);
-      document.getElementById('searchBtn').disabled = false;
+      validateSearchForm();
       showError('Connection error: ' + error.message);
     }
 
     /**
-     * Filter by itemlocat_key
+     * Populate Location dropdown with unique values from data
      */
-    function filterByItemlocat() {
-      const filterValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
+    function populateLocationDropdown() {
+      const locationFilter = document.getElementById('locationFilter');
+
+      // Get unique locations from inventory data
+      const locations = [...new Set(inventoryData
+        .map(item => item.Location)
+        .filter(loc => loc && loc.trim() !== '')
+      )].sort();
+
+      // Clear and rebuild dropdown
+      locationFilter.innerHTML = '<option value="">All Locations</option>';
+      locations.forEach(loc => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        locationFilter.appendChild(option);
+      });
+    }
+
+    /**
+     * Apply filters (itemlocat_key and Location)
+     */
+    function applyFilters() {
+      const itemlocatValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
+      const locationValue = document.getElementById('locationFilter').value;
       const filterInfo = document.getElementById('filterInfo');
 
-      if (filterValue === '') {
-        filteredData = [...inventoryData];
-        filterInfo.textContent = '';
-      } else {
-        filteredData = inventoryData.filter(item =>
-          item.itemlocat_key && item.itemlocat_key.toLowerCase().includes(filterValue)
+      // Start with all data
+      filteredData = [...inventoryData];
+
+      // Filter by itemlocat_key
+      if (itemlocatValue !== '') {
+        filteredData = filteredData.filter(item =>
+          item.itemlocat_key && item.itemlocat_key.toLowerCase().includes(itemlocatValue)
         );
+      }
+
+      // Filter by Location
+      if (locationValue !== '') {
+        filteredData = filteredData.filter(item =>
+          item.Location === locationValue
+        );
+      }
+
+      // Update filter info
+      if (itemlocatValue !== '' || locationValue !== '') {
         filterInfo.textContent = `Found: ${filteredData.length} items`;
+      } else {
+        filterInfo.textContent = '';
       }
 
       currentPage = 1;
       totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
       renderTable();
       renderPagination();
+    }
+
+    /**
+     * Filter by itemlocat_key (legacy - calls applyFilters)
+     */
+    function filterByItemlocat() {
+      applyFilters();
     }
 
     /**
@@ -1052,8 +1163,9 @@
       document.getElementById('countModal').classList.remove('show');
       selectedItem = null;
       document.getElementById('itemlocatFilter').value = '';
+      document.getElementById('locationFilter').value = '';
       document.getElementById('itemlocatFilter').focus();
-      filterByItemlocat();
+      applyFilters();
     }
 
     /**
@@ -1108,7 +1220,8 @@
 
       // Prepare update data for background save
       const updateData = {
-        'Row ID': rowId
+        'Row ID': rowId,
+        'who_updated': currentSearchParams.userEmail
       };
 
       if (countSt1 !== '') updateData.count_st1_patl = countSt1;
@@ -1214,7 +1327,7 @@
     function clearData() {
       inventoryData = [];
       filteredData = [];
-      currentSearchParams = { plant: '', countDate: '' };
+      currentSearchParams = { plant: '', countDate: '', userEmail: '' };
       currentPage = 1;
       totalPages = 1;
 
@@ -1222,10 +1335,13 @@
       plantRadios.forEach(radio => radio.checked = false);
 
       document.getElementById('countDate').value = '';
+      document.getElementById('userEmail').value = '';
       document.getElementById('resultCard').style.display = 'none';
       document.getElementById('tableBody').innerHTML = '';
       document.getElementById('summaryInline').classList.remove('show');
       document.getElementById('itemlocatFilter').value = '';
+      document.getElementById('locationFilter').innerHTML = '<option value="">All Locations</option>';
+      document.getElementById('searchBtn').disabled = true;
 
       hideError();
     }
