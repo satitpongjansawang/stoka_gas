@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#667eea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="StockCount">
+  <meta name="description" content="Inventory Stock Counting Application">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest_pwa.json">
+
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23667eea' width='180' height='180' rx='20'/><text x='90' y='115' font-size='70' text-anchor='middle' fill='white'>SC</text></svg>">
+
+  <title>Stock Counting PWA</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding: 10px;
+      padding-top: env(safe-area-inset-top, 10px);
+      padding-bottom: env(safe-area-inset-bottom, 10px);
+    }
+
+    html {
+      height: -webkit-fill-available;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .search-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .radio-item label {
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    input[type="date"] {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: 140px;
+    }
+
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="text"] {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="email"] {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: 200px;
+    }
+
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="email"]:invalid {
+      border-color: #dc3545;
+    }
+
+    select {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: white;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    input[type="number"] {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      width: 100%;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Summary Cards */
+    .summary-inline {
+      display: none;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .summary-inline.show {
+      display: flex;
+    }
+
+    .summary-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-badge .num {
+      font-weight: 700;
+    }
+
+    .summary-badge.total {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .summary-badge.match {
+      background: linear-gradient(135deg, #1e7e34 0%, #17a673 100%);
+      color: #ffffff !important;
+    }
+
+    .summary-badge.pending {
+      background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+    }
+
+    .summary-badge.unmatch {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+      color: #ffffff !important;
+    }
+
+    /* Offline indicator */
+    .offline-indicator {
+      display: none;
+      background: #dc3545;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .offline-indicator.show {
+      display: block;
+    }
+
+    /* Filter Section */
+    .filter-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .filter-section input[type="text"] {
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .filter-info {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .data-table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .data-table th {
+      background: #667eea;
+      color: white;
+      padding: 10px 12px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      font-size: 0.75rem;
+    }
+
+    .data-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .data-table tbody tr:hover,
+    .data-table tbody tr:active {
+      background: #e3f2fd !important;
+    }
+
+    .data-table tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    .match {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .unmatch {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      display: none;
+      font-size: 0.85rem;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      border: 1px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      min-width: 40px;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background: #667eea;
+      color: white;
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination button.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .pagination .page-info {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0 10px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-header h3 {
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .modal-body {
+      margin-bottom: 15px;
+    }
+
+    .item-info {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+    }
+
+    .item-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 15px;
+    }
+
+    .item-info p {
+      margin: 0;
+    }
+
+    .item-info strong {
+      color: #667eea;
+    }
+
+    .item-info .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .count-inputs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .count-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .count-input-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .count-input-group .current-value {
+      font-size: 0.7rem;
+      color: #666;
+    }
+
+    .count-input-group input[type="number"] {
+      padding: 10px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+      padding: 10px 24px;
+      font-size: 0.9rem;
+    }
+
+    /* Modal Loading */
+    .modal-loading {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .modal-loading.show {
+      display: flex;
+    }
+
+    .modal-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    .modal-loading p {
+      color: #667eea;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .toast {
+      padding: 14px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .toast.warning {
+      background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* Install prompt */
+    .install-prompt {
+      display: none;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      align-items: center;
+      gap: 12px;
+    }
+
+    .install-prompt.show {
+      display: flex;
+    }
+
+    .install-prompt p {
+      flex: 1;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .install-prompt .btn {
+      white-space: nowrap;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .search-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-group {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .radio-group {
+        flex-wrap: wrap;
+      }
+
+      .summary-inline {
+        width: 100%;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-top: 10px;
+        justify-content: center;
+      }
+
+      .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-section input[type="text"],
+      .filter-section select {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .data-table {
+        font-size: 0.75rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 6px 8px;
+      }
+
+      .modal {
+        width: 100%;
+        max-height: 95vh;
+        border-radius: 12px;
+      }
+
+      .item-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .count-inputs {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .count-input-group label {
+        font-size: 0.7rem;
+      }
+
+      .count-input-group input[type="number"] {
+        padding: 8px;
+        font-size: 1rem;
+      }
+
+      .button-group {
+        width: 100%;
+      }
+
+      .button-group .btn {
+        flex: 1;
+      }
+
+      input[type="email"] {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+
+      .card {
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .summary-badge {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+      }
+
+      .pagination button {
+        padding: 6px 10px;
+        min-width: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+      <p>Install this app on your device for a better experience!</p>
+      <button class="btn btn-primary" id="installBtn">Install</button>
+      <button class="btn btn-secondary" onclick="dismissInstall()">Later</button>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+      You are offline. Some features may not work.
+    </div>
+
+    <div class="card">
+      <div class="search-box">
+        <div class="form-group">
+          <label>Plant:</label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" id="plantSiam" name="plant" value="SIAM">
+              <label for="plantSiam">SIAM</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" id="plantAsia" name="plant" value="ASIA">
+              <label for="plantAsia">ASIA</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" id="plantThai" name="plant" value="THAI">
+              <label for="plantThai">THAI</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="countDate">Date:</label>
+          <input type="date" id="countDate">
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail">Email:</label>
+          <input type="email" id="userEmail" placeholder="your@email.com" oninput="validateSearchForm()">
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="searchBtn" onclick="searchData()" disabled>Search</button>
+          <button class="btn btn-secondary" onclick="clearData()">Clear</button>
+        </div>
+
+        <div class="summary-inline" id="summaryInline">
+          <span class="summary-badge total"><span class="num" id="totalItems">0</span> Total</span>
+          <span class="summary-badge match"><span class="num" id="matchItems">0</span> Match</span>
+          <span class="summary-badge pending"><span class="num" id="pendingItems">0</span> Pending</span>
+          <span class="summary-badge unmatch"><span class="num" id="unmatchItems">0</span> Unmatch</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <div class="card" id="resultCard" style="display: none;">
+      <div class="filter-section">
+        <label for="itemlocatFilter">Scan/Search:</label>
+        <input type="text" id="itemlocatFilter" placeholder="Enter itemlocat_key..." oninput="applyFilters()">
+        <select id="locationFilter" onchange="applyFilters()">
+          <option value="">All Locations</option>
+        </select>
+        <span class="filter-info" id="filterInfo"></span>
+      </div>
+
+      <div class="loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+
+      <div class="data-table-container" id="tableContainer">
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Part Number</th>
+              <th>Part Name</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>UOM</th>
+              <th>Count 1st</th>
+              <th>Result 1st</th>
+              <th>Count 2nd</th>
+              <th>Result 2nd</th>
+              <th>Count 3rd</th>
+              <th>Result 3rd</th>
+              <th>Result Total</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+
+      <div class="no-data" id="noData" style="display: none;">
+        <p>No data found</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Count Entry -->
+  <div class="modal-overlay" id="countModal">
+    <div class="modal">
+      <div class="modal-loading" id="modalLoading">
+        <div class="modal-spinner"></div>
+        <p>Saving...</p>
+      </div>
+      <div class="modal-header">
+        <h3>Record Count</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="item-info">
+          <div class="item-info-grid">
+            <p class="full-width"><strong>Part Number:</strong> <span id="modalPartNumber">-</span></p>
+            <p class="full-width"><strong>Part Name:</strong> <span id="modalPartName">-</span></p>
+            <p><strong>Location:</strong> <span id="modalLocation">-</span></p>
+            <p><strong>Warehouse:</strong> <span id="modalWh">-</span></p>
+            <p><strong>Product Type:</strong> <span id="modalPdType">-</span></p>
+            <p><strong>Biz Type:</strong> <span id="modalBzType">-</span></p>
+            <p><strong>Status:</strong> <span id="modalStatus">-</span></p>
+            <p><strong>BOQ:</strong> <span id="modalBoq">-</span></p>
+            <p><strong>UOM:</strong> <span id="modalUom">-</span></p>
+          </div>
+        </div>
+        <div class="count-inputs">
+          <div class="count-input-group">
+            <label for="countSt1">Count 1st</label>
+            <span class="current-value">Current: <span id="currentSt1">-</span></span>
+            <input type="number" id="countSt1" placeholder="0" min="0" inputmode="numeric" onkeypress="handleEnterKey(event)">
+          </div>
+          <div class="count-input-group">
+            <label for="countNd2">Count 2nd</label>
+            <span class="current-value">Current: <span id="currentNd2">-</span></span>
+            <input type="number" id="countNd2" placeholder="0" min="0" inputmode="numeric" onkeypress="handleEnterKey(event)">
+          </div>
+          <div class="count-input-group">
+            <label for="countRd3">Count 3rd</label>
+            <span class="current-value">Current: <span id="currentRd3">-</span></span>
+            <input type="number" id="countRd3" placeholder="0" min="0" inputmode="numeric" onkeypress="handleEnterKey(event)">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-success" id="saveCountBtn" onclick="saveCount()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Include API functions -->
+  <script src="fromgs_pwa.js"></script>
+
+  <script>
+    // Store data in RAM
+    let inventoryData = [];
+    let filteredData = [];
+    let currentSearchParams = {
+      plant: '',
+      countDate: '',
+      userEmail: ''
+    };
+    let selectedItem = null;
+
+    // Pagination settings
+    const ROWS_PER_PAGE = 10;
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // PWA Install prompt
+    let deferredPrompt;
+
+    /**
+     * Register Service Worker
+     */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw_pwa.js')
+          .then((registration) => {
+            console.log('SW registered:', registration);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+
+    /**
+     * Handle PWA install prompt
+     */
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installPrompt').classList.add('show');
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install outcome:', outcome);
+        deferredPrompt = null;
+        document.getElementById('installPrompt').classList.remove('show');
+      }
+    });
+
+    function dismissInstall() {
+      document.getElementById('installPrompt').classList.remove('show');
+    }
+
+    /**
+     * Handle online/offline status
+     */
+    function updateOnlineStatus() {
+      const indicator = document.getElementById('offlineIndicator');
+      if (navigator.onLine) {
+        indicator.classList.remove('show');
+      } else {
+        indicator.classList.add('show');
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    /**
+     * Validate search form
+     */
+    function validateSearchForm() {
+      const emailInput = document.getElementById('userEmail');
+      const searchBtn = document.getElementById('searchBtn');
+      const email = emailInput.value.trim();
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValidEmail = emailRegex.test(email);
+
+      searchBtn.disabled = !isValidEmail;
+    }
+
+    /**
+     * Search data from AppSheet API
+     */
+    async function searchData() {
+      const plantRadio = document.querySelector('input[name="plant"]:checked');
+      const countDateInput = document.getElementById('countDate').value;
+      const userEmailInput = document.getElementById('userEmail').value.trim();
+
+      if (!plantRadio) {
+        showError('Please select Plant');
+        return;
+      }
+
+      if (!countDateInput) {
+        showError('Please select Date');
+        return;
+      }
+
+      if (!userEmailInput) {
+        showError('Please enter Email');
+        return;
+      }
+
+      const plant = plantRadio.value;
+      const countDate = formatDateForAppSheet(countDateInput);
+
+      currentSearchParams.plant = plant;
+      currentSearchParams.countDate = countDateInput;
+      currentSearchParams.userEmail = userEmailInput;
+
+      hideError();
+      showLoading(true);
+      document.getElementById('resultCard').style.display = 'block';
+      document.getElementById('searchBtn').disabled = true;
+
+      try {
+        const result = await searchInventoryData(plant, countDate);
+        handleSearchSuccess(result);
+      } catch (error) {
+        handleSearchError(error);
+      }
+    }
+
+    /**
+     * Handle search success
+     */
+    function handleSearchSuccess(result) {
+      showLoading(false);
+      validateSearchForm();
+
+      if (result.success) {
+        inventoryData = result.data || [];
+        filteredData = [...inventoryData];
+        currentPage = 1;
+        totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
+        updateDisplay();
+        renderTable();
+        renderPagination();
+        populateLocationDropdown();
+        document.getElementById('itemlocatFilter').value = '';
+        document.getElementById('locationFilter').value = '';
+        document.getElementById('filterInfo').textContent = '';
+        document.getElementById('itemlocatFilter').focus();
+      } else {
+        showError('Error: ' + (result.error || 'Unknown error'));
+        inventoryData = [];
+        filteredData = [];
+        renderTable();
+      }
+    }
+
+    /**
+     * Handle search error
+     */
+    function handleSearchError(error) {
+      showLoading(false);
+      validateSearchForm();
+      showError('Connection error: ' + (error.message || error.toString()));
+    }
+
+    /**
+     * Populate Location dropdown
+     */
+    function populateLocationDropdown() {
+      const locationFilter = document.getElementById('locationFilter');
+
+      const locations = [...new Set(inventoryData
+        .map(item => item.Location)
+        .filter(loc => loc && loc.trim() !== '')
+      )].sort();
+
+      locationFilter.innerHTML = '<option value="">All Locations</option>';
+      locations.forEach(loc => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        locationFilter.appendChild(option);
+      });
+    }
+
+    /**
+     * Apply filters
+     */
+    function applyFilters() {
+      const itemlocatValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
+      const locationValue = document.getElementById('locationFilter').value;
+      const filterInfo = document.getElementById('filterInfo');
+
+      filteredData = [...inventoryData];
+
+      if (itemlocatValue !== '') {
+        filteredData = filteredData.filter(item =>
+          item.itemlocat_key && item.itemlocat_key.toLowerCase().includes(itemlocatValue)
+        );
+      }
+
+      if (locationValue !== '') {
+        filteredData = filteredData.filter(item =>
+          item.Location === locationValue
+        );
+      }
+
+      if (itemlocatValue !== '' || locationValue !== '') {
+        filterInfo.textContent = `Found: ${filteredData.length} items`;
+      } else {
+        filterInfo.textContent = '';
+      }
+
+      currentPage = 1;
+      totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
+      renderTable();
+      renderPagination();
+    }
+
+    /**
+     * Update display
+     */
+    function updateDisplay() {
+      const total = inventoryData.length;
+      let match = 0;
+      let unmatch = 0;
+      let pending = 0;
+
+      inventoryData.forEach(item => {
+        const diffSuggestTot = item.diff_suggest_tot;
+
+        if (diffSuggestTot === '' || diffSuggestTot === null || diffSuggestTot === undefined) {
+          pending++;
+        } else {
+          const diffValue = parseFloat(diffSuggestTot) || 0;
+          if (diffValue === 0) {
+            match++;
+          } else {
+            unmatch++;
+          }
+        }
+      });
+
+      document.getElementById('totalItems').textContent = total;
+      document.getElementById('matchItems').textContent = match;
+      document.getElementById('unmatchItems').textContent = unmatch;
+      document.getElementById('pendingItems').textContent = pending;
+
+      document.getElementById('summaryInline').classList.add('show');
+    }
+
+    /**
+     * Render table
+     */
+    function renderTable() {
+      const tableBody = document.getElementById('tableBody');
+      const noData = document.getElementById('noData');
+      const tableContainer = document.getElementById('tableContainer');
+
+      if (filteredData.length === 0) {
+        tableContainer.style.display = 'none';
+        document.getElementById('pagination').style.display = 'none';
+        noData.style.display = 'block';
+        return;
+      }
+
+      tableContainer.style.display = 'block';
+      noData.style.display = 'none';
+
+      const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
+      const pageData = filteredData.slice(startIndex, endIndex);
+
+      let html = '';
+      pageData.forEach((item, index) => {
+        const result1st = (item.result_st1_counts || '').toLowerCase();
+        const result1stClass = result1st === 'match' ? 'match' : (result1st ? 'unmatch' : '');
+
+        const result2nd = (item.result_nd2_counts || '').toLowerCase();
+        const result2ndClass = result2nd === 'match' ? 'match' : (result2nd ? 'unmatch' : '');
+
+        const result3rd = (item.result_rd3_counts || '').toLowerCase();
+        const result3rdClass = result3rd === 'match' ? 'match' : (result3rd ? 'unmatch' : '');
+
+        const dataIndex = inventoryData.findIndex(d => d['Row ID'] === item['Row ID']);
+
+        const suggestTooltip = item.suggest_totals !== undefined && item.suggest_totals !== ''
+          ? `Suggest Total: ${item.suggest_totals}`
+          : 'Suggest Total: -';
+
+        const resultTotClass = (item.result_tot_counts || '').toLowerCase();
+        const resultTotDisplayClass = resultTotClass === 'match' ? 'match' : (resultTotClass ? 'unmatch' : '');
+
+        html += `
+          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}" title="${suggestTooltip}">
+            <td>${item.item_order || '-'}</td>
+            <td>${item.part_number || '-'}</td>
+            <td>${item.part_name || '-'}</td>
+            <td>${item.Location || '-'}</td>
+            <td>${item.Status || '-'}</td>
+            <td>${item.uom || '-'}</td>
+            <td>${item.summary_st1 || '-'}</td>
+            <td class="${result1stClass}">${item.result_st1_counts || '-'}</td>
+            <td>${item.summary_nd2 || '-'}</td>
+            <td class="${result2ndClass}">${item.result_nd2_counts || '-'}</td>
+            <td>${item.summary_rd3 || '-'}</td>
+            <td class="${result3rdClass}">${item.result_rd3_counts || '-'}</td>
+            <td class="${resultTotDisplayClass}">${item.result_tot_counts || '-'}</td>
+          </tr>
+        `;
+      });
+
+      tableBody.innerHTML = html;
+    }
+
+    /**
+     * Open count modal
+     */
+    function openCountModal(index) {
+      selectedItem = inventoryData[index];
+      if (!selectedItem) return;
+
+      document.getElementById('modalPartNumber').textContent = selectedItem.part_number || '-';
+      document.getElementById('modalPartName').textContent = selectedItem.part_name || '-';
+      document.getElementById('modalLocation').textContent = selectedItem.Location || '-';
+      document.getElementById('modalWh').textContent = selectedItem.wh || '-';
+      document.getElementById('modalPdType').textContent = selectedItem.pd_type || '-';
+      document.getElementById('modalBzType').textContent = selectedItem.bz_type || '-';
+      document.getElementById('modalStatus').textContent = selectedItem.Status || '-';
+      document.getElementById('modalBoq').textContent = selectedItem.boq || '-';
+      document.getElementById('modalUom').textContent = selectedItem.uom || '-';
+
+      document.getElementById('currentSt1').textContent = selectedItem.count_st1_patl || '-';
+      document.getElementById('currentNd2').textContent = selectedItem.count_nd2_patl || '-';
+      document.getElementById('currentRd3').textContent = selectedItem.count_rd3_patl || '-';
+
+      document.getElementById('countSt1').value = '';
+      document.getElementById('countNd2').value = '';
+      document.getElementById('countRd3').value = '';
+
+      document.getElementById('modalLoading').classList.remove('show');
+      document.getElementById('countModal').classList.add('show');
+      document.getElementById('countSt1').focus();
+    }
+
+    /**
+     * Close modal
+     */
+    function closeModal() {
+      document.getElementById('countModal').classList.remove('show');
+      selectedItem = null;
+      document.getElementById('itemlocatFilter').value = '';
+      document.getElementById('locationFilter').value = '';
+      document.getElementById('itemlocatFilter').focus();
+      applyFilters();
+    }
+
+    /**
+     * Handle Enter key
+     */
+    function handleEnterKey(event) {
+      if (event.key === 'Enter' || event.keyCode === 13) {
+        event.preventDefault();
+        saveCount();
+      }
+    }
+
+    /**
+     * Save count data
+     */
+    async function saveCount() {
+      if (!selectedItem) return;
+
+      const countSt1 = document.getElementById('countSt1').value;
+      const countNd2 = document.getElementById('countNd2').value;
+      const countRd3 = document.getElementById('countRd3').value;
+
+      if (countSt1 === '' && countNd2 === '' && countRd3 === '') {
+        showToast('Please enter at least one count value', 'warning');
+        return;
+      }
+
+      // Calculate Match/Unmatch immediately
+      const suggest = parseFloat(selectedItem.suggest_totals) || 0;
+      let enteredValue = 0;
+      let countType = '';
+
+      if (countSt1 !== '') {
+        enteredValue = parseFloat(countSt1);
+        countType = '1st';
+      } else if (countNd2 !== '') {
+        enteredValue = parseFloat(countNd2);
+        countType = '2nd';
+      } else if (countRd3 !== '') {
+        enteredValue = parseFloat(countRd3);
+        countType = '3rd';
+      }
+
+      // Show Toast immediately
+      if (enteredValue === suggest) {
+        showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
+      } else {
+        showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
+      }
+
+      // Update local data immediately
+      const rowId = selectedItem['Row ID'];
+      const idx = inventoryData.findIndex(d => d['Row ID'] === rowId);
+      if (idx !== -1) {
+        if (countSt1 !== '') inventoryData[idx].count_st1_patl = countSt1;
+        if (countNd2 !== '') inventoryData[idx].count_nd2_patl = countNd2;
+        if (countRd3 !== '') inventoryData[idx].count_rd3_patl = countRd3;
+      }
+
+      // Close modal immediately
+      closeModal();
+
+      // Prepare update data
+      const updateData = {
+        'Row ID': rowId,
+        'who_assigned': currentSearchParams.userEmail
+      };
+
+      if (countSt1 !== '') updateData.count_st1_patl = countSt1;
+      if (countNd2 !== '') updateData.count_nd2_patl = countNd2;
+      if (countRd3 !== '') updateData.count_rd3_patl = countRd3;
+
+      // Save in background
+      try {
+        const result = await saveCountData(updateData);
+        if (!result.success) {
+          showToast('Save failed: ' + (result.error || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        showToast('Connection error: ' + (error.message || error.toString()), 'error');
+      }
+    }
+
+    /**
+     * Show toast
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    /**
+     * Render pagination
+     */
+    function renderPagination() {
+      const paginationContainer = document.getElementById('pagination');
+
+      if (filteredData.length === 0) {
+        paginationContainer.style.display = 'none';
+        return;
+      }
+
+      paginationContainer.style.display = 'flex';
+
+      let html = '';
+
+      html += `<button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+      html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lsaquo;</button>`;
+
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      if (startPage > 1) {
+        html += `<button onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+          html += `<span class="page-info">...</span>`;
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          html += `<span class="page-info">...</span>`;
+        }
+        html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&rsaquo;</button>`;
+      html += `<button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
+
+      const startItem = (currentPage - 1) * ROWS_PER_PAGE + 1;
+      const endItem = Math.min(currentPage * ROWS_PER_PAGE, filteredData.length);
+      html += `<span class="page-info">${startItem}-${endItem} of ${filteredData.length}</span>`;
+
+      paginationContainer.innerHTML = html;
+    }
+
+    /**
+     * Go to page
+     */
+    function goToPage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderTable();
+      renderPagination();
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /**
+     * Clear all data
+     */
+    function clearData() {
+      inventoryData = [];
+      filteredData = [];
+      currentSearchParams = { plant: '', countDate: '', userEmail: '' };
+      currentPage = 1;
+      totalPages = 1;
+
+      const plantRadios = document.querySelectorAll('input[name="plant"]');
+      plantRadios.forEach(radio => radio.checked = false);
+
+      document.getElementById('countDate').value = '';
+      document.getElementById('userEmail').value = '';
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('tableBody').innerHTML = '';
+      document.getElementById('summaryInline').classList.remove('show');
+      document.getElementById('itemlocatFilter').value = '';
+      document.getElementById('locationFilter').innerHTML = '<option value="">All Locations</option>';
+      document.getElementById('searchBtn').disabled = true;
+
+      hideError();
+    }
+
+    /**
+     * Format date to MM/DD/YYYY
+     */
+    function formatDateForAppSheet(dateStr) {
+      const date = new Date(dateStr);
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
+    }
+
+    /**
+     * Show/hide loading
+     */
+    function showLoading(show) {
+      const loading = document.getElementById('loadingIndicator');
+      const tableContainer = document.getElementById('tableContainer');
+      const pagination = document.getElementById('pagination');
+
+      if (show) {
+        loading.classList.add('show');
+        tableContainer.style.display = 'none';
+        pagination.style.display = 'none';
+      } else {
+        loading.classList.remove('show');
+      }
+    }
+
+    /**
+     * Show error
+     */
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    /**
+     * Hide error
+     */
+    function hideError() {
+      document.getElementById('errorMessage').classList.remove('show');
+    }
+  </script>
+</body>
+</html>
