@@ -919,7 +919,7 @@
       google.script.run
         .withSuccessHandler(handleSearchSuccess)
         .withFailureHandler(handleSearchError)
-        .searchInventoryData(plant, countDate);
+        .searchInventoryData(plant, countDate, userEmailInput);
     }
 
     /**

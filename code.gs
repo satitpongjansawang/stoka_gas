@@ -23,9 +23,10 @@ function doGet() {
  * ค้นหาข้อมูลจาก AppSheet API
  * @param {string} plant - สถานที่นับ (เช่น 'SIAM')
  * @param {string} countDate - วันที่นับสต๊อก (รูปแบบ MM/DD/YYYY)
+ * @param {string} userEmail - อีเมล์ผู้บันทึก (who_assigned)
  * @returns {Object} ผลลัพธ์จาก API
  */
-function searchInventoryData(plant, countDate) {
+function searchInventoryData(plant, countDate, userEmail) {
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_CONFIG.appId}/tables/${APPSHEET_CONFIG.tableName}/Action`;
 
@@ -33,7 +34,7 @@ function searchInventoryData(plant, countDate) {
       "Action": "Find",
       "Properties": {
         "Locale": "en-US",
-        "Selector": `Filter(${APPSHEET_CONFIG.tableName}, AND([plant] = '${plant}', [set_count_date] = '${countDate}'))`
+        "Selector": `Filter(${APPSHEET_CONFIG.tableName}, AND([plant] = '${plant}', [set_count_date] = '${countDate}', [who_assigned] = '${userEmail}'))`
       },
       "Rows": []
     };
