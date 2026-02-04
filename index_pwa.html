@@ -1074,7 +1074,7 @@
       document.getElementById('searchBtn').disabled = true;
 
       try {
-        const result = await searchInventoryData(plant, countDate);
+        const result = await searchInventoryData(plant, countDate, userEmailInput);
         handleSearchSuccess(result);
       } catch (error) {
         handleSearchError(error);

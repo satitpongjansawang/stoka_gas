@@ -14,9 +14,10 @@ const APPSHEET_CONFIG = {
  * Search inventory data from AppSheet API
  * @param {string} plant - Plant location (e.g., 'SIAM', 'ASIA', 'THAI')
  * @param {string} countDate - Count date in MM/DD/YYYY format
+ * @param {string} userEmail - User email for who_assigned filter
  * @returns {Promise<Object>} API result
  */
-async function searchInventoryData(plant, countDate) {
+async function searchInventoryData(plant, countDate, userEmail) {
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_CONFIG.appId}/tables/${APPSHEET_CONFIG.tableName}/Action`;
 
@@ -24,7 +25,7 @@ async function searchInventoryData(plant, countDate) {
       "Action": "Find",
       "Properties": {
         "Locale": "en-US",
-        "Selector": `Filter(${APPSHEET_CONFIG.tableName}, AND([plant] = '${plant}', [set_count_date] = '${countDate}'))`
+        "Selector": `Filter(${APPSHEET_CONFIG.tableName}, AND([plant] = '${plant}', [set_count_date] = '${countDate}', [who_assigned] = '${userEmail}'))`
       },
       "Rows": []
     };
