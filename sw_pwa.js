@@ -3,7 +3,7 @@
  * Provides offline caching and background sync
  */
 
-const CACHE_NAME = 'stock-counting-pwa-v3';
+const CACHE_NAME = 'stock-counting-pwa-v4';
 const ASSETS_TO_CACHE = [
   './index_pwa.html',
   './fromgs_pwa.js',

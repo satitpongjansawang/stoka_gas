@@ -303,6 +303,28 @@
       color: #666;
     }
 
+    .checkbox-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #333;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .checkbox-filter input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-filter span {
+      white-space: nowrap;
+    }
+
     .data-table-container {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -1064,6 +1086,10 @@
         <select id="locationFilter" onchange="applyFilters()">
           <option value="">All Locations</option>
         </select>
+        <label class="checkbox-filter">
+          <input type="checkbox" id="hideMatchFilter" checked onchange="applyFilters()">
+          <span>Hide Match</span>
+        </label>
         <span class="filter-info" id="filterInfo"></span>
       </div>
 
@@ -1378,9 +1404,18 @@
     function applyFilters() {
       const itemlocatValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
       const locationValue = document.getElementById('locationFilter').value;
+      const hideMatch = document.getElementById('hideMatchFilter').checked;
       const filterInfo = document.getElementById('filterInfo');
 
       filteredData = [...inventoryData];
+
+      // Hide Match items if checkbox is checked
+      if (hideMatch) {
+        filteredData = filteredData.filter(item => {
+          const resultTot = (item.result_tot_counts || '').toLowerCase();
+          return resultTot !== 'match';
+        });
+      }
 
       if (itemlocatValue !== '') {
         filteredData = filteredData.filter(item =>
@@ -1394,8 +1429,15 @@
         );
       }
 
+      // Show filter info
+      const totalBeforeFilter = hideMatch
+        ? inventoryData.filter(item => (item.result_tot_counts || '').toLowerCase() !== 'match').length
+        : inventoryData.length;
+
       if (itemlocatValue !== '' || locationValue !== '') {
-        filterInfo.textContent = `Found: ${filteredData.length} items`;
+        filterInfo.textContent = `Found: ${filteredData.length} of ${totalBeforeFilter}`;
+      } else if (hideMatch) {
+        filterInfo.textContent = `Pending: ${filteredData.length}`;
       } else {
         filterInfo.textContent = '';
       }
@@ -1543,13 +1585,15 @@
     /**
      * Close modal
      */
-    function closeModal() {
+    function closeModal(resetFilters = true) {
       document.getElementById('countModal').classList.remove('show');
       selectedItem = null;
-      document.getElementById('itemlocatFilter').value = '';
-      document.getElementById('locationFilter').value = '';
+      if (resetFilters) {
+        document.getElementById('itemlocatFilter').value = '';
+        document.getElementById('locationFilter').value = '';
+        applyFilters();
+      }
       document.getElementById('itemlocatFilter').focus();
-      applyFilters();
     }
 
     /**
@@ -1581,6 +1625,7 @@
       const suggest = parseFloat(selectedItem.suggest_totals) || 0;
       let enteredValue = 0;
       let countType = '';
+      let isMatch = false;
 
       if (countSt1 !== '') {
         enteredValue = parseFloat(countSt1);
@@ -1593,8 +1638,11 @@
         countType = '3rd';
       }
 
+      // Check if it matches
+      isMatch = (enteredValue === suggest);
+
       // Show Toast immediately
-      if (enteredValue === suggest) {
+      if (isMatch) {
         showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
       } else {
         showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
@@ -1604,13 +1652,31 @@
       const rowId = selectedItem['Row ID'];
       const idx = inventoryData.findIndex(d => d['Row ID'] === rowId);
       if (idx !== -1) {
-        if (countSt1 !== '') inventoryData[idx].count_st1_patl = countSt1;
-        if (countNd2 !== '') inventoryData[idx].count_nd2_patl = countNd2;
-        if (countRd3 !== '') inventoryData[idx].count_rd3_patl = countRd3;
+        if (countSt1 !== '') {
+          inventoryData[idx].count_st1_patl = countSt1;
+          inventoryData[idx].result_st1_counts = isMatch ? 'Match' : 'Unmatch';
+        }
+        if (countNd2 !== '') {
+          inventoryData[idx].count_nd2_patl = countNd2;
+          inventoryData[idx].result_nd2_counts = isMatch ? 'Match' : 'Unmatch';
+        }
+        if (countRd3 !== '') {
+          inventoryData[idx].count_rd3_patl = countRd3;
+          inventoryData[idx].result_rd3_counts = isMatch ? 'Match' : 'Unmatch';
+        }
+        // Update result_tot_counts for filter
+        inventoryData[idx].result_tot_counts = isMatch ? 'Match' : 'Unmatch';
+        inventoryData[idx].diff_suggest_tot = isMatch ? 0 : (enteredValue - suggest);
       }
 
-      // Close modal immediately
-      closeModal();
+      // Close modal without resetting filters
+      closeModal(false);
+
+      // Update summary display
+      updateDisplay();
+
+      // Re-apply filters to hide matched rows (auto-hide if Match)
+      applyFilters();
 
       // Prepare update data
       const updateData = {
