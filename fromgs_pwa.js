@@ -64,6 +64,58 @@ async function searchInventoryData(plant, countDate, userEmail) {
 }
 
 /**
+ * Search inventory data from AppSheet API (ALL items, no email filter)
+ * @param {string} plant - Plant location (e.g., 'SIAM', 'ASIA', 'THAI')
+ * @param {string} countDate - Count date in MM/DD/YYYY format
+ * @returns {Promise<Object>} API result
+ */
+async function searchInventoryDataAll(plant, countDate) {
+  try {
+    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_CONFIG.appId}/tables/${APPSHEET_CONFIG.tableName}/Action`;
+
+    const payload = {
+      "Action": "Find",
+      "Properties": {
+        "Locale": "en-US",
+        "Selector": `Filter(${APPSHEET_CONFIG.tableName}, AND([plant] = '${plant}', [set_count_date] = '${countDate}'))`
+      },
+      "Rows": []
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ApplicationAccessKey': APPSHEET_CONFIG.apiKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        success: true,
+        data: data,
+        count: Array.isArray(data) ? data.length : 0
+      };
+    } else {
+      const errorText = await response.text();
+      return {
+        success: false,
+        error: `API Error: ${response.status}`,
+        details: errorText
+      };
+    }
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
  * Get plant list
  * @returns {Array} Plant list
  */

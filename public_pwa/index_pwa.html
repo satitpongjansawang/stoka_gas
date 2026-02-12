@@ -295,7 +295,7 @@
 
     .filter-section input[type="text"] {
       flex: 1;
-      max-width: 300px;
+      max-width: 150px;
     }
 
     .filter-info {
@@ -365,6 +365,34 @@
 
     .data-table tr:nth-child(even) {
       background: #f9f9f9;
+    }
+
+    /* Row background colors based on status */
+    .data-table tbody tr.row-match {
+      background: #d4edda !important;
+    }
+
+    .data-table tbody tr.row-unmatch {
+      background: #f8d7da !important;
+    }
+
+    .data-table tbody tr.row-pending {
+      background: #fff3cd !important;
+    }
+
+    .data-table tbody tr.row-match:hover,
+    .data-table tbody tr.row-match:active {
+      background: #c3e6cb !important;
+    }
+
+    .data-table tbody tr.row-unmatch:hover,
+    .data-table tbody tr.row-unmatch:active {
+      background: #f5c6cb !important;
+    }
+
+    .data-table tbody tr.row-pending:hover,
+    .data-table tbody tr.row-pending:active {
+      background: #ffeeba !important;
     }
 
     .match {
@@ -1081,14 +1109,17 @@
 
     <div class="card" id="resultCard" style="display: none;">
       <div class="filter-section">
-        <label for="itemlocatFilter">Scan/Search:</label>
-        <input type="text" id="itemlocatFilter" placeholder="Enter itemlocat_key..." oninput="applyFilters()">
+        <input type="text" id="itemlocatFilter" placeholder="itemlocat_key..." oninput="applyFilters()">
         <select id="locationFilter" onchange="applyFilters()">
           <option value="">All Locations</option>
         </select>
         <label class="checkbox-filter">
           <input type="checkbox" id="hideMatchFilter" checked onchange="applyFilters()">
           <span>Hide Match</span>
+        </label>
+        <label class="checkbox-filter">
+          <input type="checkbox" id="showAllEmailFilter" onchange="applyFilters()">
+          <span>Show All</span>
         </label>
         <span class="filter-info" id="filterInfo"></span>
       </div>
@@ -1138,7 +1169,7 @@
         <p>Saving...</p>
       </div>
       <div class="modal-header">
-        <h3>Record Count</h3>
+        <h3 id="modalTitle">-</h3>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
@@ -1189,6 +1220,7 @@
   <script>
     // Store data in RAM
     let inventoryData = [];
+    let allInventoryData = []; // Data without email filter
     let filteredData = [];
     let currentSearchParams = {
       plant: '',
@@ -1196,6 +1228,7 @@
       userEmail: ''
     };
     let selectedItem = null;
+    let isLoadingAll = false;
 
     // Pagination settings
     const ROWS_PER_PAGE = 10;
@@ -1401,13 +1434,21 @@
     /**
      * Apply filters
      */
-    function applyFilters() {
+    async function applyFilters() {
       const itemlocatValue = document.getElementById('itemlocatFilter').value.trim().toLowerCase();
       const locationValue = document.getElementById('locationFilter').value;
       const hideMatch = document.getElementById('hideMatchFilter').checked;
+      const showAll = document.getElementById('showAllEmailFilter').checked;
       const filterInfo = document.getElementById('filterInfo');
 
-      filteredData = [...inventoryData];
+      // If "Show All" is checked and we don't have all data yet, fetch it
+      if (showAll && allInventoryData.length === 0 && !isLoadingAll) {
+        await loadAllData();
+      }
+
+      // Use appropriate data source
+      const sourceData = showAll ? allInventoryData : inventoryData;
+      filteredData = [...sourceData];
 
       // Hide Match items if checkbox is checked
       if (hideMatch) {
@@ -1431,8 +1472,8 @@
 
       // Show filter info
       const totalBeforeFilter = hideMatch
-        ? inventoryData.filter(item => (item.result_tot_counts || '').toLowerCase() !== 'match').length
-        : inventoryData.length;
+        ? sourceData.filter(item => (item.result_tot_counts || '').toLowerCase() !== 'match').length
+        : sourceData.length;
 
       if (itemlocatValue !== '' || locationValue !== '') {
         filterInfo.textContent = `Found: ${filteredData.length} of ${totalBeforeFilter}`;
@@ -1446,6 +1487,75 @@
       totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE) || 1;
       renderTable();
       renderPagination();
+
+      // Update display with correct data source
+      if (showAll && allInventoryData.length > 0) {
+        updateDisplayWithData(allInventoryData);
+      } else {
+        updateDisplay();
+      }
+    }
+
+    /**
+     * Load all data without email filter
+     */
+    async function loadAllData() {
+      if (!currentSearchParams.plant || !currentSearchParams.countDate) return;
+
+      isLoadingAll = true;
+      showToast('Loading all items...', 'success');
+
+      try {
+        const countDate = formatDateForAppSheet(currentSearchParams.countDate);
+        const result = await searchInventoryDataAll(currentSearchParams.plant, countDate);
+        if (result.success) {
+          allInventoryData = result.data || [];
+        }
+      } catch (error) {
+        showToast('Error loading all data', 'error');
+      }
+
+      isLoadingAll = false;
+    }
+
+    /**
+     * Update display with specific data
+     */
+    function updateDisplayWithData(data) {
+      const total = data.length;
+      let match = 0;
+      let unmatch = 0;
+      let pending = 0;
+
+      data.forEach(item => {
+        const diffSuggestTot = item.diff_suggest_tot;
+
+        if (diffSuggestTot === '' || diffSuggestTot === null || diffSuggestTot === undefined) {
+          pending++;
+        } else {
+          const diffValue = parseFloat(diffSuggestTot) || 0;
+          if (diffValue === 0) {
+            match++;
+          } else {
+            unmatch++;
+          }
+        }
+      });
+
+      // Update inline summary (mobile)
+      document.getElementById('totalItems').textContent = total;
+      document.getElementById('matchItems').textContent = match;
+      document.getElementById('unmatchItems').textContent = unmatch;
+      document.getElementById('pendingItems').textContent = pending;
+
+      // Update header summary (desktop)
+      document.getElementById('totalItemsHeader').textContent = total;
+      document.getElementById('matchItemsHeader').textContent = match;
+      document.getElementById('unmatchItemsHeader').textContent = unmatch;
+      document.getElementById('pendingItemsHeader').textContent = pending;
+
+      document.getElementById('summaryInline').classList.add('show');
+      document.getElementById('headerSummary').classList.add('show');
     }
 
     /**
@@ -1530,8 +1640,19 @@
         const resultTotClass = (item.result_tot_counts || '').toLowerCase();
         const resultTotDisplayClass = resultTotClass === 'match' ? 'match' : (resultTotClass ? 'unmatch' : '');
 
+        // Determine row background class
+        let rowClass = '';
+        const hasAnyCounts = item.count_st1_patl || item.count_nd2_patl || item.count_rd3_patl;
+        if (resultTotClass === 'match') {
+          rowClass = 'row-match';
+        } else if (resultTotClass === 'unmatch') {
+          rowClass = 'row-unmatch';
+        } else if (!hasAnyCounts) {
+          rowClass = 'row-pending';
+        }
+
         html += `
-          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}" title="${suggestTooltip}">
+          <tr onclick="openCountModal(${dataIndex})" data-rowid="${item['Row ID']}" title="${suggestTooltip}" class="${rowClass}">
             <td>${item.item_order || '-'}</td>
             <td>${item.part_number || '-'}</td>
             <td>${item.part_name || '-'}</td>
@@ -1558,6 +1679,9 @@
     function openCountModal(index) {
       selectedItem = inventoryData[index];
       if (!selectedItem) return;
+
+      // Set modal title to Part Number
+      document.getElementById('modalTitle').textContent = selectedItem.part_number || '-';
 
       document.getElementById('modalPartNumber').textContent = selectedItem.part_number || '-';
       document.getElementById('modalPartName').textContent = selectedItem.part_name || '-';
@@ -1641,11 +1765,11 @@
       // Check if it matches
       isMatch = (enteredValue === suggest);
 
-      // Show Toast immediately
+      // Show Toast immediately (simplified)
       if (isMatch) {
-        showToast(`Count ${countType}: ${enteredValue} = Suggest: ${suggest} (MATCH)`, 'success');
+        showToast('MATCH', 'success');
       } else {
-        showToast(`Count ${countType}: ${enteredValue} ≠ Suggest: ${suggest} (UNMATCH)`, 'warning');
+        showToast('UNMATCH', 'warning');
       }
 
       // Update local data immediately
@@ -1784,6 +1908,7 @@
      */
     function clearData() {
       inventoryData = [];
+      allInventoryData = [];
       filteredData = [];
       currentSearchParams = { plant: '', countDate: '', userEmail: '' };
       currentPage = 1;
@@ -1800,6 +1925,8 @@
       document.getElementById('headerSummary').classList.remove('show');
       document.getElementById('itemlocatFilter').value = '';
       document.getElementById('locationFilter').innerHTML = '<option value="">All Locations</option>';
+      document.getElementById('hideMatchFilter').checked = true;
+      document.getElementById('showAllEmailFilter').checked = false;
       document.getElementById('searchBtn').disabled = true;
 
       // Reset header summary values
